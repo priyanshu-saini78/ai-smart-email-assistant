@@ -1,0 +1,507 @@
+{
+  "name": "AI Smart Email Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "maxResults": 50,
+        "filters": {
+          "includeSpamTrash": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "14d0d930-7f10-4a81-8a54-7674187d142d",
+      "name": "Gmail Trigger",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Ro3CTuDTHGzj2Ibw",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc661330-a53f-477d-9879-e58ac9565efe",
+              "name": "=sender",
+              "value": "={{ $json.from.text }}",
+              "type": "string"
+            },
+            {
+              "id": "a520f379-c06c-41f6-b9a8-7d9deb592060",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "6fda7bc6-0985-43a5-bf39-da43c2f002c6",
+              "name": "email_body",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "bf85ad8d-fd2a-49d9-a54a-eb2eab90d61a",
+              "name": "threadId",
+              "value": "={{ $json.threadId }}",
+              "type": "string"
+            },
+            {
+              "id": "5b01acb9-e44a-4a29-b028-68ae8b99113b",
+              "name": "messageId",
+              "value": "={{ $json.messageId }}",
+              "type": "string"
+            },
+            {
+              "id": "9e070e6c-6b30-4a83-8321-30d9bea33028",
+              "name": "sender_email",
+              "value": "={{ $json.from.value[0].address }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "354ee98d-30c9-46b2-a9d8-b5be0583e237",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze this email and return structured information.\n\nSubject:\n{{$json.subject}}\n\nFrom:\n{{$json.sender}}\n\nEmail:\n{{ $json.email_body }}\n\nDetermine:\n- Category\n- Priority\n- Sentiment\n- Whether a reply is required\n- A short summary\n- A professional reply (only if required)\n\nIf no reply is required, set requiresReply to false and leave the reply field empty.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI Smart Email Assistant designed for professional email automation.\n\nYour responsibility is to analyze incoming emails and produce accurate, structured information for an automated workflow.\n\nYour tasks are:\n\n1. Read the complete email carefully.\n2. Identify the email category.\n3. Determine the priority.\n4. Analyze the sentiment.\n5. Decide whether the email requires a reply.\n6. Write a concise summary.\n7. If a reply is required, generate a professional reply.\n\nRules:\n\n• Understand the complete context before responding.\n• Never invent facts or information that are not present in the email.\n• Never assume attachments exist unless explicitly mentioned in the email or provided by the workflow.\n• Never mention that an email is incomplete unless the provided email text is actually incomplete.\n• Never generate fake names, company names, signatures, addresses, phone numbers, or contact details.\n• Never include Subject, From, To, CC, BCC, email headers, or markdown in the reply.\n• Return only the email body as the reply.\n• Keep the reply professional, polite, concise, and grammatically correct.\n• Maintain the same language as the incoming email unless instructed otherwise.\n• If a reply is not required, set requiresReply to false and leave the reply field empty.\n\nEmail Categories:\n- Job\n- Business\n- Meeting\n- Customer Support\n- Finance\n- Marketing\n- Newsletter\n- Notification\n- Personal\n- Spam\n- Other\n\nPriority Rules:\nHigh:\n- Job offers\n- Interview invitations\n- Client issues\n- Business proposals\n- Urgent requests\n- Payment issues\n\nMedium:\n- Meeting requests\n- General inquiries\n- Follow-ups\n- Customer communication\n\nLow:\n- Newsletters\n- LinkedIn notifications\n- GitHub notifications\n- Promotional emails\n- Social media updates\n- Automated notifications\n\nSet requiresReply = true when:\n- The sender asks a question.\n- The sender requests information.\n- The sender requests a meeting.\n- The sender submits a job application.\n- The sender expects a response.\n- Customer support is required.\n\nSet requiresReply = false when:\n- Newsletter\n- OTP\n- Shipping update\n- Payment receipt\n- LinkedIn notification\n- GitHub notification\n- Promotional email\n- Marketing email\n- Automated system notification\n- Spam\n\nSummary Rules:\n- Maximum two sentences.\n- Clearly describe the purpose of the email.\n- Do not copy the email verbatim.\n\nReply Rules:\n- Thank the sender when appropriate.\n- Answer only the information provided.\n- Do not promise actions you cannot verify.\n- Do not invent timelines.\n- Do not add placeholders like [Company Name], [Your Name], or [Hiring Team].\n- End with a polite closing such as:\n  \"Best regards,\"\n  or\n  \"Sincerely,\"\n- Do not add a signature after the closing.\n\nAlways return data that matches the required structured output schema exactly.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        0
+      ],
+      "id": "0ac8d5f3-8410-4389-bc20-d979f66e6094",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        208
+      ],
+      "id": "3ef8400f-891c-40b8-a30c-bf9c5d98218c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "yEltTjDdxhexAY3e",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"category\": \"...\",\n  \"priority\": \"...\",\n  \"sentiment\": \"...\",\n  \"requiresReply\": true,\n  \"summary\": \"...\",\n  \"reply\": \"...\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        224
+      ],
+      "id": "0926173e-c758-495e-b256-ecd83591fd5c",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4a056c23-bf17-402e-8adb-4aef90898d8a",
+              "leftValue": "={{ $('AI Agent').item.json.output.requiresReply }}",
+              "rightValue": "No reply is needed for this automated notification",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        976,
+        0
+      ],
+      "id": "eb635134-c487-4328-95a4-d0d45edb5534",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{$node[\"Edit Fields\"].json.subject}}",
+        "emailType": "html",
+        "message": "={{ $json.Reply }}",
+        "options": {
+          "sendTo": "={{ $('Edit Fields').item.json.sender_email }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        -16
+      ],
+      "id": "eed29faa-0fed-4bf4-b684-99e4902d0a1f",
+      "name": "Create a draft",
+      "webhookId": "18c33547-590f-46ac-9b76-97d482033aa8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Ro3CTuDTHGzj2Ibw",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1vrJt37kwjRyg9JFMTyrEVh3BJryZBgbkqB-Eo4e0P1U",
+          "mode": "list",
+          "cachedResultName": "AI Smart Email Assistant",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vrJt37kwjRyg9JFMTyrEVh3BJryZBgbkqB-Eo4e0P1U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vrJt37kwjRyg9JFMTyrEVh3BJryZBgbkqB-Eo4e0P1U/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{$now}}",
+            "Sender": "={{ $('Edit Fields').item.json.sender }}",
+            "Sender_email": "={{ $('Edit Fields').item.json.sender_email }}",
+            "Subject": "={{ $('Edit Fields').item.json.subject }}",
+            "Category": "={{ $json.output.category }}",
+            "Priority": "={{ $json.output.priority }}",
+            "Sentiment": "={{ $json.output.sentiment }}",
+            "Summary": "={{ $json.output.summary }}",
+            "Reply": "={{ $json.output.reply }}",
+            "Status": "Processed"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender",
+              "displayName": "Sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender_email",
+              "displayName": "Sender_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reply",
+              "displayName": "Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        0
+      ],
+      "id": "85471171-2adb-47f1-a83d-05eafc99cf2b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wZGqExQTDFduCIZK",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19f193e1ff64d17b",
+          "threadId": "19f193e1ff64d17b",
+          "labelIds": [
+            "UNREAD",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 9024,
+          "headers": {
+            "delivered-to": "Delivered-To: priyanshu09374@gmail.com",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id 4fb4d7f45d1cf-69882b672f4sor351020a12.4.2026.06.30.08.55.29\r\n        for <priyanshu09374@gmail.com>\r\n        (Google Transport Security);\r\n        Tue, 30 Jun 2026 08:55:29 -0700 (PDT)",
+            "x-received": "X-Received: by 2002:a05:6402:428f:b0:695:924e:e4cc with SMTP id\r\n 4fb4d7f45d1cf-69879d9b594mr1969413a12.8.1782834928629; Tue, 30 Jun 2026\r\n 08:55:28 -0700 (PDT)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1782834929; cv=none;\r\n        d=google.com; s=arc-20260327;\r\n        b=j5RT+Aar49WVJXMTbPkMFq15tokI/4SAn1GPIeMNcbt7vWtn9ywLAwxcJCOCcRW6oL\r\n         F3pNMKFlfDx6JTkqk6doRFMgSzoTddVfIcvQ2fLB8pZ2Q0hi/4DDy8z+elr7jfNGj8PG\r\n         0kMlH8cEpY8muepX8QVyNUGbYkdLeXkWwRnDK/YIl1eWTY/zVmP28PdRTVaZqexGTX/t\r\n         INKWIHs49N0GeSZ5AnyMKatrxUR44Lh43LP0Cexev7o5CyzHemOUNlBmUR5W+o23YYYV\r\n         cBDFNhrBeoMVeqBt2VRlMRIYJe28O4lJjADUgE/zLyQHBrYFLZmZ0pQQOha8Xl9Jf4zJ\r\n         YiNg==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;\r\n        h=to:subject:message-id:date:from:mime-version:dkim-signature;\r\n        bh=Bj7kDWCnN4WkVF2A45MojXyzhDmUUU63PmLZFw7zipU=;\r\n        fh=GDCI5GLLnYFtJ+bq95o5qMhVHLSUGT4CLmTdH/j21GE=;\r\n        b=Z5HzWsBiRYKEBvyIc3hT4i22irHraOkC2AASIxmyOEX/4ilosaVr9Z4I2/VMfh8oNG\r\n         Dq6JbtZtN1Z+S2F7JpaukWZoyrJfpwYXQTCrv98uZPsEjD3Uwh2YaGO61p9GCib/d5ta\r\n         U2BR98eu5k6pzW5+m/uZxFfIeE6hBjSIgNTZu5xtsIcr2VI+7VNVLM3q6hN2FoSb/qJi\r\n         hYvxwLdhdcLV4vBxbQfbrXZzOpXQ0wWI1hyOqn/IisR6SiEvZ89ypENExz2NeMdpNx40\r\n         7pntFiq4hLGnDwLNmMs+3DwVBNhLJfu0HO5DigM3dFgYPeBtYUYY0PuaXkXOEP/vAVsI\r\n         1fag==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none",
+            "return-path": "Return-Path: <priyanshusaini456776@gmail.com>",
+            "received-spf": "Received-SPF: pass (google.com: domain of priyanshusaini456776@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20251104 header.b=DBWwIO2F;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of priyanshusaini456776@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=priyanshusaini456776@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=pass header.i=@gmail.com",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20251104; t=1782834929; x=1783439729; dara=google.com;\r\n        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject\r\n         :date:message-id:reply-to;\r\n        bh=Bj7kDWCnN4WkVF2A45MojXyzhDmUUU63PmLZFw7zipU=;\r\n        b=DBWwIO2F1UeqFjhvIrX2FRYis+9+AqqFDHPwpwLrCASQCeepxEAuNIU84JrzatSpnZ\r\n         9lbYAfDtaJYPL6rKM+Q7Kewg2JIHlCQCmYJvLVz9b8bKyRpKu73ZbEuKd2+RrC3g+S1O\r\n         prRQCH3PC1WyCgKH7P8SzMBICTTSH3R8i9FGjqWziO7ya5mXZ6JYhmhTrhBUcFHLnr9q\r\n         FBarO+0ldLAVYCtDu5Gb7kpeVH6RGeA6hVup9f7cKLj+2pF3LL0oBcYeCBLU0eGoCxGB\r\n         GWKO5J07NeYoDZv+f2JWQU6ZpyrukmR+bvJNvZ+sACiGoEjX+iHC89VkyF0fEc9JQe0R\r\n         tRjQ==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20251104; t=1782834929; x=1783439729;\r\n        h=to:subject:message-id:date:from:mime-version:x-gm-gg\r\n         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;\r\n        bh=Bj7kDWCnN4WkVF2A45MojXyzhDmUUU63PmLZFw7zipU=;\r\n        b=fTGR7FarsmVYkm8erTzoIj4oZUMblXpxbGDzPpL3tdQpDH6bH3H9Z9CJtLDlSpuzoU\r\n         0aHq3U+xvKOArEY6BcNf3IYDPHmXGrkpaHh+DbDtPMZrZFVFpjCzaWeR1cTZvnbNk3HM\r\n         eiFsNF82jBJm8HmO4RKwdTJ358iEtKQNIReO2YNV7j/wsZdQTPBTKkdm2NV7dm7aVPI0\r\n         Gmc9Gqh9cEQTXfMuVWQWqe6fXb8HxomFEE1IvO5Z/0VbocJxtPS8SDxx7ZQUAQrgx3xV\r\n         SLpNxtjPVY2kKejB4m0wu8vTpAtxGVcKnjEaExNr0ts2jIM/ZJ9uY7mvJV/ZmxGrWvST\r\n         wJ8g==",
+            "x-gm-message-state": "X-Gm-Message-State: AOJu0YzwRrKqq2dfQsxVHQjT5HpFm6/JGrIDxwjaN9IPn4Vmvm31tuYa\r\n\tV/wcObKz0+sVETl5tDt5fxgSK7OrMEt2SJ8oPk5vM2Mkd3jR9p98WKscX//2QP+zHGYB0c/FXg1\r\n\tFEy2tyEyThj/lkR/caJ2WkkTgREykZCDFcA==",
+            "x-gm-gg": "X-Gm-Gg: AfdE7ck1gQ0pfzd7RIayk9UWdJMmi+8ArXtd2stq7ZGu6GD4GPMKeXfR2Gc6GLA1R00\r\n\tfTJsmakm4Asf+BmarUCY77GUrGTlXXHfgesB+Dca9FuhPZ2MOVHa2dKuOdB3RgzRv5SExGjTA/T\r\n\tUQr5ZE7kLxYQ4/NZ8TNlZs1YwSLIqHkMx68WTvuN0NFvh1/zOE2Ddsd6tR6A2WmG8HZv7DY4K5s\r\n\tU5JBXysp/ReL37A7g5vGAfhMIOPgNb+B0DRnNkayWxLVGeby5k86wyaSpqexWM4aykqYpa5++Iw\r\n\tnvdhULGVcEWeSh1+P2aU1xy4xZU=",
+            "mime-version": "MIME-Version: 1.0",
+            "from": "From: Priyanshu Saini <priyanshusaini456776@gmail.com>",
+            "date": "Date: Tue, 30 Jun 2026 21:25:16 +0530",
+            "x-gm-features": "X-Gm-Features: AVVi8Cd-l7jp496ETChIZL1UXVEibWBKk2X1iih44AXrWSqXl8XRLFQj7MTcrQ8",
+            "message-id": "Message-ID: <CACht4LWrY9NCoe3g62S=1MUvKJB9nVG-4nbZzaeczJunZRkjyw@mail.gmail.com>",
+            "subject": "Subject: Job application Ai automation or n8n developer role",
+            "to": "To: \"priyanshu09374@gmail.com\" <priyanshu09374@gmail.com>",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"0000000000009d3cbc06557a9a02\""
+          },
+          "html": "<div dir=\"auto\"><div dir=\"auto\"><p>Dear Hiring Manager,</p><p>I hope you are doing well.</p><p>My name is Priyanshu Saini, and I am writing to express my interest in the AI Automation Specialist / n8n Developer position at your company.</p><p>I have hands-on experience building AI automation workflows using n8n, integrating APIs, webhooks, Google Sheets, AI agents, and large language models. I have also worked on projects such as AI email generators, lead qualification systems, and workflow automation solutions.</p><p>I am eager to contribute my skills, learn from experienced professionals, and grow as part of your team. I have attached my resume for your review.</p><p>Thank you for your time and consideration. I would appreciate the opportunity to discuss how my skills can contribute to your organization.</p><p>I look forward to hearing from you.</p><p>Kind regards,</p><p>Priyanshu Saini<br>Email: <a href=\"mailto:priyanshusaini456776@gmail.com\">priyanshusaini456776@gmail.com</a><br>Phone: +91 8683984608</p></div></div>\n",
+          "text": "Dear Hiring Manager,\n\nI hope you are doing well.\n\nMy name is Priyanshu Saini, and I am writing to express my interest in the\nAI Automation Specialist / n8n Developer position at your company.\n\nI have hands-on experience building AI automation workflows using n8n,\nintegrating APIs, webhooks, Google Sheets, AI agents, and large language\nmodels. I have also worked on projects such as AI email generators, lead\nqualification systems, and workflow automation solutions.\n\nI am eager to contribute my skills, learn from experienced professionals,\nand grow as part of your team. I have attached my resume for your review.\n\nThank you for your time and consideration. I would appreciate the\nopportunity to discuss how my skills can contribute to your organization.\n\nI look forward to hearing from you.\n\nKind regards,\n\nPriyanshu Saini\nEmail: priyanshusaini456776@gmail.com\nPhone: +91 8683984608\n",
+          "textAsHtml": "<p>Dear Hiring Manager,</p><p>I hope you are doing well.</p><p>My name is Priyanshu Saini, and I am writing to express my interest in the<br/>AI Automation Specialist / n8n Developer position at your company.</p><p>I have hands-on experience building AI automation workflows using n8n,<br/>integrating APIs, webhooks, Google Sheets, AI agents, and large language<br/>models. I have also worked on projects such as AI email generators, lead<br/>qualification systems, and workflow automation solutions.</p><p>I am eager to contribute my skills, learn from experienced professionals,<br/>and grow as part of your team. I have attached my resume for your review.</p><p>Thank you for your time and consideration. I would appreciate the<br/>opportunity to discuss how my skills can contribute to your organization.</p><p>I look forward to hearing from you.</p><p>Kind regards,</p><p>Priyanshu Saini<br/>Email: <a href=\"mailto:priyanshusaini456776@gmail.com\">priyanshusaini456776@gmail.com</a><br/>Phone: +91 8683984608</p>",
+          "subject": "Job application Ai automation or n8n developer role",
+          "date": "2026-06-30T15:55:16.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "priyanshu09374@gmail.com",
+                "name": ""
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><a href=\"mailto:priyanshu09374@gmail.com\" class=\"mp_address_email\">priyanshu09374@gmail.com</a></span>",
+            "text": "priyanshu09374@gmail.com"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "priyanshusaini456776@gmail.com",
+                "name": "Priyanshu Saini"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Priyanshu Saini</span> &lt;<a href=\"mailto:priyanshusaini456776@gmail.com\" class=\"mp_address_email\">priyanshusaini456776@gmail.com</a>&gt;</span>",
+            "text": "\"Priyanshu Saini\" <priyanshusaini456776@gmail.com>"
+          },
+          "messageId": "<CACht4LWrY9NCoe3g62S=1MUvKJB9nVG-4nbZzaeczJunZRkjyw@mail.gmail.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "05580b5f-db18-4ae8-b76b-8dbe3725573f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e8bb6e80d432ec68958d0874fc96bb5f8575c74856e0b9357a1809883ae6f1b8"
+  },
+  "nodeGroups": [],
+  "id": "WtnB8SF9xdvpFXsk",
+  "tags": []
+}
