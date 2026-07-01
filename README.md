@@ -64,8 +64,6 @@ IF Node
 
 ---
 
-# 📸 Screenshots
-
 # 📸 Workflow Screenshot
 
 ![AI Smart Email Assistant Workflow](screenshots/workflow.png)
