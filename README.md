@@ -4,7 +4,7 @@ An AI-powered Email Assistant built using **n8n** and **Google Gemini AI** that 
 
 ---
 
-## 📌 Project Overview
+# 📌 Project Overview
 
 This project automates email management using Artificial Intelligence. Instead of manually reading and replying to every email, the workflow analyzes each incoming email and generates an intelligent response.
 
@@ -12,7 +12,7 @@ The workflow is designed using **n8n** and integrates **Google Gemini AI**, **Gm
 
 ---
 
-## ✨ Features
+# ✨ Features
 
 - 📧 Automatically reads incoming Gmail messages
 - 🤖 Classifies emails into categories
@@ -20,12 +20,12 @@ The workflow is designed using **n8n** and integrates **Google Gemini AI**, **Gm
 - 😊 Performs sentiment analysis
 - 📝 Generates professional AI replies
 - 📊 Stores email details in Google Sheets
-- ✅ Sends replies only when required
+- 📩 Creates Gmail draft replies automatically
 - ⚡ Fully automated workflow using n8n
 
 ---
 
-## 🛠 Tech Stack
+# 🛠 Tech Stack
 
 - n8n
 - Google Gemini AI
@@ -33,11 +33,11 @@ The workflow is designed using **n8n** and integrates **Google Gemini AI**, **Gm
 - Google Sheets
 - AI Agent
 - Structured Output Parser
-- Webhooks
+- Workflow Automation
 
 ---
 
-## 🔄 Workflow
+# 🔄 Workflow
 
 ```text
 Gmail Trigger
@@ -46,54 +46,51 @@ Gmail Trigger
 Edit Fields
       │
       ▼
-AI Agent (Google Gemini AI)
+AI Agent
+(Google Gemini AI)
       │
       ▼
 Structured Output Parser
       │
       ▼
+Google Sheets
+      │
+      ▼
 IF Node
-   ├── Reply Required → Gmail Reply → Google Sheets
-   └── No Reply → Google Sheets
+      │
+      ├── Reply Required → Gmail Draft
+      └── No Reply
 ```
 
 ---
 
-## 📸 Screenshots
+# 📸 Screenshots
 
-### Workflow
+## Workflow
 
-> Add your workflow screenshot here.
-
-Example:
-
-```
-screenshots/workflow.png
-```
+![AI Smart Email Assistant Workflow](screenshots/workflow.png)
 
 ---
 
-## 🚀 How It Works
+# 🚀 How It Works
 
 1. Gmail Trigger detects a new email.
-2. Required email fields are extracted.
+2. Email subject and body are extracted.
 3. Google Gemini AI analyzes the email.
-4. AI identifies:
-   - Category
+4. AI determines:
+   - Email Category
    - Priority
    - Sentiment
    - Summary
    - Reply Requirement
-5. If a reply is required:
-   - AI generates a professional response.
-   - Gmail sends the reply automatically.
-6. Email details are stored in Google Sheets.
+5. Email information is stored in Google Sheets.
+6. If a reply is required, a professional Gmail draft is created automatically.
 
 ---
 
-## 📂 Repository Structure
+# 📂 Repository Structure
 
-```
+```text
 ai-smart-email-assistant/
 │
 ├── workflow.json
@@ -104,18 +101,18 @@ ai-smart-email-assistant/
 
 ---
 
-## 🎯 Future Improvements
+# 🎯 Future Improvements
 
-- Support multiple AI models
-- Spam detection
-- Attachment summarization
-- Multi-language email replies
-- Calendar integration
-- CRM integration
+- Multi-language support
+- Spam Detection
+- Attachment Summarization
+- CRM Integration
+- Calendar Integration
+- AI Email Scheduling
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
 **Priyanshu Saini**
 
